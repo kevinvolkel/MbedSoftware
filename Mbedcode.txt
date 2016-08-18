@@ -25,14 +25,14 @@ int sendcount=0;
 Serial ser(USBTX,USBRX);
 SPI spi(p11,p12,p13);
 DigitalOut cs(p21);
-DigitalOut led(p8);
+DigitalOut led(p7);
 Ticker sendsignal;
 Ticker checkshock;
 Ticker timeout;
 Ticker ADC;
 InterruptIn shock(p28);
 AnalogIn ADCget(p15);
-
+DigitalOut arduino(p5);
 
 
 
@@ -143,6 +143,7 @@ void send2DAC(void){
             }
         else{
             // reset buffers and flags
+            arduino=0;
             ADC.detach();
             sendsignal.detach();
             recieveind=0;
@@ -243,6 +244,7 @@ void receiveData(void){
 }
     
 int main(){
+ arduino=0;
  cs=1;
  //spi formatting
  spi.format(8,2); // 8 bits mode 2
@@ -255,6 +257,8 @@ int main(){
  while(1){
     //start sending values to DAC when buffer is full, send to DAC every 5 seconds and sample on ADC ever 50ms
     if(startsend==1){
+        //send signal to the arduino
+        arduino=1;
         sendsignal.attach(&send2DAC,0.001);
         startsend=0;
         if(led==0){
